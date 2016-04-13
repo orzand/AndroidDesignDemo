@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:app="http://schemas.android.com/apk/res-auto">
+	<!--<item-->
+	<!--android:id="@+id/action_settings"-->
+	<!--android:orderInCategory="100"-->
+	<!--android:title="@string/action_settings"-->
+	<!--app:showAsAction="never"/>-->
+
+	<item
+		android:id="@+id/action_search"
+		android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
+		android:orderInCategory="100"
+		android:title="@string/action_search"
+		app:showAsAction="ifRoom"/> <!--借用appcompat里的资源-->
+
+	<item
+		android:id="@+id/action_share"
+		android:icon="@drawable/abc_ic_menu_share_mtrl_alpha"
+		android:orderInCategory="100"
+		android:title="@string/action_share"
+		app:showAsAction="ifRoom"/> <!--借用appcompat里的资源-->
+
+</menu>
