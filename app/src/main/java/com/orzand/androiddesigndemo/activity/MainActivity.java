@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,12 +18,17 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.orzand.androiddesigndemo.R;
+import com.orzand.androiddesigndemo.fragment.ContentFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 	private Toolbar toolbar;
 	private FloatingActionButton fab;
 	private DrawerLayout drawer;
 	private NavigationView navigationView;
+
+	private FragmentManager fragmentManager;
+	private Fragment fragment;
+	private ContentFragment contentFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +67,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				Toast.makeText(MainActivity.this, "imageView clicked", Toast.LENGTH_SHORT).show();
 			}
 		});
+
+		// TODO init Fragments
+		fragmentManager = getSupportFragmentManager();
+		contentFragment = ContentFragment.getInstance("内容 1");
+		switchContentFragment(fragment, contentFragment);
 	}
 
 	@Override
@@ -95,11 +108,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	@SuppressWarnings("StatementWithEmptyBody")
 	@Override
 	public boolean onNavigationItemSelected(MenuItem item) {
-		// Handle navigation view item clicks here.
+		// TODO Handle navigation view item clicks here.
 		int id = item.getItemId();
 
 		if (id == R.id.nav_camera) {
-			// Handle the camera action
+			switchContentFragment(fragment, contentFragment);
+			fragment = contentFragment;
 		} else if (id == R.id.nav_gallery) {
 
 		} else if (id == R.id.nav_slideshow) {
@@ -117,4 +131,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		return true;
 	}
 
+	private void switchContentFragment(Fragment from, Fragment to) {
+		if (from == null && to == null) {
+			return;
+		}
+
+		if (from != to) {
+			FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+			if (from != null) {
+				if (!to.isAdded()) {
+					transaction.hide(from).add(R.id.content_main, to).commit();
+				} else {
+					transaction.hide(from).show(to).commit();
+				}
+			} else {
+				if (!to.isAdded()) {
+					transaction.add(R.id.content_main, to).commit();
+				} else {
+					transaction.show(to).commit();
+				}
+			}
+		}
+	}
 }
