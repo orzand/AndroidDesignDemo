@@ -18,17 +18,20 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.orzand.androiddesigndemo.R;
-import com.orzand.androiddesigndemo.fragment.ContentFragment;
+import com.orzand.androiddesigndemo.fragment.DiscoveryFragment;
+import com.orzand.androiddesigndemo.fragment.FavoriteFragment;
+import com.orzand.androiddesigndemo.fragment.FocusFragment;
+import com.orzand.androiddesigndemo.fragment.HomePageFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-	private Toolbar toolbar;
-	private FloatingActionButton fab;
 	private DrawerLayout drawer;
-	private NavigationView navigationView;
 
 	private FragmentManager fragmentManager;
 	private Fragment fragment;
-	private ContentFragment contentFragment;
+	private HomePageFragment homePageFragment;
+	private DiscoveryFragment discoveryFragment;
+	private FocusFragment focusFragment;
+	private FavoriteFragment favoriteFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +42,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	}
 
 	private void initView() {
-		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
+		setTitle("主页");
 
-		fab = (FloatingActionButton) findViewById(R.id.fab);
+		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -57,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		drawer.setDrawerListener(toggle);
 		toggle.syncState();
 
-		navigationView = (NavigationView) findViewById(R.id.nav_view);
+		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 		navigationView.setNavigationItemSelectedListener(this);
 
 		// 处理NavigationView中的HeaderView的监听事件
@@ -68,10 +72,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			}
 		});
 
-		// TODO init Fragments
+		// init Fragments
 		fragmentManager = getSupportFragmentManager();
-		contentFragment = ContentFragment.getInstance("内容 1");
-		switchContentFragment(fragment, contentFragment);
+		homePageFragment = HomePageFragment.getInstance("主页");
+		fragment = homePageFragment;
+		fragmentManager.beginTransaction().add(R.id.content_main, homePageFragment).commit();
 	}
 
 	@Override
@@ -91,14 +96,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// 根据标题动态加载menu
+		menu.clear();
+		String title = getTitle().toString();
+		if ("收藏".equals(title)) {
+			return true;
+		} else if ("关注".equals(title)) {
+			getMenuInflater().inflate(R.menu.focus, menu);
+		} else {
+			getMenuInflater().inflate(R.menu.main, menu);
+		}
+
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// TODO
 		switch (item.getItemId()) {
 			case R.id.action_search:
 				Toast.makeText(this, R.string.action_search, Toast.LENGTH_SHORT).show();
 				break;
 			case R.id.action_share:
 				Toast.makeText(this, R.string.action_share, Toast.LENGTH_SHORT).show();
+				break;
+			case R.id.action_focus:
+				Toast.makeText(this, R.string.action_focus, Toast.LENGTH_SHORT).show();
 				break;
 		}
 
@@ -109,48 +132,75 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	@Override
 	public boolean onNavigationItemSelected(MenuItem item) {
 		// TODO Handle navigation view item clicks here.
-		int id = item.getItemId();
+		switch (item.getItemId()) {
+			case R.id.nav_camera:
+				if (homePageFragment == null) {
+					homePageFragment = HomePageFragment.getInstance("主页");
+				}
 
-		if (id == R.id.nav_camera) {
-			switchContentFragment(fragment, contentFragment);
-			fragment = contentFragment;
-		} else if (id == R.id.nav_gallery) {
+				switchContentFragment(fragment, homePageFragment);
+				fragment = homePageFragment;
 
-		} else if (id == R.id.nav_slideshow) {
+				setTitle(item.getTitle());
+				break;
 
-		} else if (id == R.id.nav_manage) {
+			case R.id.nav_gallery:
+				if (discoveryFragment == null) {
+					discoveryFragment = DiscoveryFragment.getInstance("发现");
+				}
 
-		} else if (id == R.id.nav_share) {
+				switchContentFragment(fragment, discoveryFragment);
+				fragment = discoveryFragment;
 
-		} else if (id == R.id.nav_send) {
+				setTitle(item.getTitle());
+				break;
 
+			case R.id.nav_slideshow:
+				if (focusFragment == null) {
+					focusFragment = FocusFragment.getInstance("关注");
+				}
+
+				switchContentFragment(fragment, focusFragment);
+				fragment = focusFragment;
+
+				setTitle(item.getTitle());
+
+				break;
+
+			case R.id.nav_manage:
+				if (favoriteFragment == null) {
+					favoriteFragment = FavoriteFragment.getInstance("收藏");
+				}
+
+				switchContentFragment(fragment, favoriteFragment);
+				fragment = favoriteFragment;
+
+				setTitle(item.getTitle());
+
+				break;
+
+			case R.id.nav_share:
+				break;
+
+			case R.id.nav_send:
+				finish();
+				break;
 		}
 
-		//		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		invalidateOptionsMenu();
 		drawer.closeDrawer(GravityCompat.START);
+
 		return true;
 	}
 
 	private void switchContentFragment(Fragment from, Fragment to) {
-		if (from == null && to == null) {
-			return;
-		}
-
 		if (from != to) {
 			FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-			if (from != null) {
-				if (!to.isAdded()) {
-					transaction.hide(from).add(R.id.content_main, to).commit();
-				} else {
-					transaction.hide(from).show(to).commit();
-				}
+			if (!to.isAdded()) {
+				transaction.hide(from).add(R.id.content_main, to).commit();
 			} else {
-				if (!to.isAdded()) {
-					transaction.add(R.id.content_main, to).commit();
-				} else {
-					transaction.show(to).commit();
-				}
+				transaction.hide(from).show(to).commit();
 			}
 		}
 	}
