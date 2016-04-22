@@ -46,6 +46,7 @@ public class DiscoveryFragment extends BaseFragment {
 
 		MyViewPagerAdapter adapter = new MyViewPagerAdapter(getChildFragmentManager(), fragments);
 		vp.setAdapter(adapter);
+		vp.setOffscreenPageLimit(3);
 
 		tbl.setupWithViewPager(vp);
 	}

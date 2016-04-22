@@ -196,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	private void switchContentFragment(Fragment from, Fragment to) {
 		if (from != to) {
 			FragmentTransaction transaction = fragmentManager.beginTransaction();
+			transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
 
 			if (!to.isAdded()) {
 				transaction.hide(from).add(R.id.content_main, to).commit();
